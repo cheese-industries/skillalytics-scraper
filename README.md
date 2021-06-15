@@ -1,2 +1,2 @@
 # Skillalytics scraper
-Sports data scraping tool and functions
+Sports data scraping tool
