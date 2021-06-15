@@ -16,7 +16,7 @@ library(tidyverse)
 library(rvest)
 
 #Select years to scrape
-output_df <- href_dat(seasons = c(1918:1920))
+output_df <- href_dat(seasons = c(1918:2021))
 
 #Get tables from returned list
 skater_season_stats <- output_df$skater_stats
