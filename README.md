@@ -30,5 +30,5 @@ reg_sched_results <- output_df$reg_sched_results
 <br><i>*If scraping multiple seasons be sure to encapsulate the input within the combine <code>c()</code> function.</i></p>
 <p>The function outputs a four item lists of tables scraped. These can be extracted and added to their own R elements after the function has run as shown in the last part of the example above.</p>
 
-<h4 style="color:#bb0000;">! Important</h4>
+<h4>! Important</h4>
 <p>The dataset contains both a team-by-team breakdown of player stats (for players who played on multiple teams within one season) as well as a season total for those players (marked as 'TOT' in the Team name variable). Depending on your purpose, the dataset will need to be filitered accordingly to ensure you are not double counting those statistics.</p>
