@@ -15,7 +15,7 @@ href_dat <- function(seasons) {
   
   #---  SETUP  ---#
   
-  #Avaiable years by table
+  #Available years by table
   sbs_yrs <- c(1918:2004, 2006:2021)
   sas_yrs <- c(2008:2021)
   stoi_yrs <- c(2008:2021)
@@ -57,117 +57,117 @@ href_dat <- function(seasons) {
   #---  SKATER TABLES  ---#
   
   ## Skater Basic Stats
+  
+  #Create table url variables
+  sbs_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+  sbs_urlend <- '_skaters.html'
+  
+  #Create xpath variables to get player id 
+  sbs_xpath_strt <- '//*[@id="stats"]/tbody/tr['
+  sbs_xpath_mid <- ']/td['
+  sbs_xpath_end <- ']/a'
+  
+  #Create empty dataframe to fill
+  sbs_df <- setNames(data.frame(matrix(ncol = 31, nrow = 0)),
+                     c("Season", "Rk", "Player", "Age", "Tm",'Team_Bkdwn_Flag', 'Seas_Sum_Flag', "Pos",
+                       "GP","G", "A", "PTS", "+/-", "PIM", "PS", "EV", "PP", "SH", "GW", "EV.1", "PP.1", "SH.1",
+                       "S", "S%", "TOI", "ATOI", "BLK", "HIT", "FOW", "FOL", "FO%"))
+  sbs_id_df <- data.frame()
+  
+  #Scrape data
+  for (i in sbs_yrs){
     
-    #Create table url variables
-    sbs_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
-    sbs_urlend <- '_skaters.html'
+    #Create url to scrape
+    sbs_url <- read_html(paste(sbs_urlstrt, i, sbs_urlend, sep=""))
     
-    #Create xpath variables to get player id 
-    sbs_xpath_strt <- '//*[@id="stats"]/tbody/tr['
-    sbs_xpath_mid <- ']/td['
-    sbs_xpath_end <- ']/a'
+    #Get table
+    sbs_df_temp <- sbs_url %>%
+      html_node('table#stats') %>%    # select the desired table
+      html_table()
     
-    #Create empty dataframe to fill
-    sbs_df <- setNames(data.frame(matrix(ncol = 31, nrow = 0)),
-                       c("Season", "Rk", "Player", "Age", "Tm",'Team_Bkdwn_Flag', 'Seas_Sum_Flag', "Pos",
-                         "GP","G", "A", "PTS", "+/-", "PIM", "PS", "EV", "PP", "SH", "GW", "EV.1", "PP.1", "SH.1",
-                         "S", "S%", "TOI", "ATOI", "BLK", "HIT", "FOW", "FOL", "FO%"))
-    sbs_id_df <- data.frame()
+    #Edit colnames
+    names(sbs_df_temp) <- as.matrix(sbs_df_temp[1, ])
+    sbs_df_temp <- sbs_df_temp[-1, ]
+    sbs_df_temp <- cbind(Season = i, sbs_df_temp)
     
-    #Scrape data
-    for (i in sbs_yrs){
+    #Get number of players in table for next loop
+    rows <- (1:nrow(sbs_df_temp))
+    
+    #Loop through each row of table to get player url (to be used for player id)
+    for (l in rows) {
       
-      #Create url to scrape
-      sbs_url <- read_html(paste(sbs_urlstrt, i, sbs_urlend, sep=""))
-      
-      #Get table
-      sbs_df_temp <- sbs_url %>%
-        html_node('table#stats') %>%    # select the desired table
-        html_table()
-      
-      #Edit colnames
-      names(sbs_df_temp) <- as.matrix(sbs_df_temp[1, ])
-      sbs_df_temp <- sbs_df_temp[-1, ]
-      sbs_df_temp <- cbind(Season = i, sbs_df_temp)
-      
-      #Get number of players in table for next loop
-      rows <- (1:nrow(sbs_df_temp))
-      
-      #Loop through each row of table to get player url (to be used for player id)
-      for (l in rows) {
-        
-        #Get url (player id)
-        sbs_id_df_temp <- sbs_url %>%
-          html_node(
-            xpath = paste(sbs_xpath_strt, l, sbs_xpath_mid, 1, sbs_xpath_end, sep = "")
-          ) %>%
-          html_attr('href')
-        
-        #Turn into df to combine with stats table
-        sbs_id_df_temp <- data.frame(sbs_id_df_temp)
-        sbs_id_df <- rbind(sbs_id_df, sbs_id_df_temp)
-        
-      }
-      
-      #Combine data
-      sbs_df_temp <- cbind(sbs_df_temp, sbs_id_df)
-      
-      #Find rows of players that have multiple listings based on playing for more than one team in season
-      sbs_tots <- sbs_df_temp %>%
-        select(
-          Season, sbs_id_df_temp, Tm 
+      #Get url (player id)
+      sbs_id_df_temp <- sbs_url %>%
+        html_node(
+          xpath = paste(sbs_xpath_strt, l, sbs_xpath_mid, 1, sbs_xpath_end, sep = "")
         ) %>%
-        subset(
-          Tm == 'TOT'
-        )
+        html_attr('href')
       
-      #Mark these based on keeping season totals and broken down by team rows for removal later
-      sbs_df_temp <- sbs_df_temp %>%
-        mutate(
-          Match = sbs_df_temp$sbs_id_df_temp %in% sbs_tots$sbs_id_df_temp,
-          Team_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', 1, 0),
-          Seas_Sum_Flag = ifelse(Tm == 'TOT', 1, 0)
-        ) %>%
-        relocate(
-          c(Team_Bkdwn_Flag, Seas_Sum_Flag), .after = Tm
-        ) %>%
-        select(
-          -Match
-        )
-      
-      #Remove blank rows
-      sbs_df_temp <- sbs_df_temp[!(sbs_df_temp$Rk=="Rk"),]
-      
-      #Add to full dataframe  
-      sbs_df <- rbind.fill(sbs_df, sbs_df_temp)
-      
-      #Clear temporary df's
-      sbs_df_temp <- NULL
-      sbs_id_df <- NULL
+      #Turn into df to combine with stats table
+      sbs_id_df_temp <- data.frame(sbs_id_df_temp)
+      sbs_id_df <- rbind(sbs_id_df, sbs_id_df_temp)
       
     }
     
-    #Set colnames for table
-    colnames(sbs_df)[1:32] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'Pos1',
-                                'GP', 'G', 'A', 'PTS', 'PlusMinus', 'PIM', 'PS', 'esG', 'ppG', 'shG',	'GWG', 'esA', 'ppA', 'shA',
-                                'S', 'S_Pct', 'TOI', 'Avg_TOI', 'BLK', 'HIT', 'FOW', 'FOL',	'FO_Pct', 'Player_URL')
+    #Combine data
+    sbs_df_temp <- cbind(sbs_df_temp, sbs_id_df)
     
-    #Edit table to convert player url into player id, relocate next to player name, and remove rank col
-    sbs_df <- sbs_df %>%
+    #Find rows of players that have multiple listings based on playing for more than one team in season
+    sbs_tots <- sbs_df_temp %>%
+      select(
+        Season, sbs_id_df_temp, Tm 
+      ) %>%
+      subset(
+        Tm == 'TOT'
+      )
+    
+    #Mark these based on keeping season totals and broken down by team rows for removal later
+    sbs_df_temp <- sbs_df_temp %>%
       mutate(
-        Player_ID = substr(substring(Player_URL, 12),1,nchar(substring(Player_URL, 12))-5)
+        Match = sbs_df_temp$sbs_id_df_temp %in% sbs_tots$sbs_id_df_temp,
+        Team_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', 1, 0),
+        Seas_Sum_Flag = ifelse(Tm == 'TOT', 1, 0)
       ) %>%
       relocate(
-        Player_ID, .before = Player_Name
+        c(Team_Bkdwn_Flag, Seas_Sum_Flag), .after = Tm
       ) %>%
       select(
-        -Rk, -Player_URL
-      ) %>%
-      arrange(
-        Season,
-        Player_ID
+        -Match
       )
-
+    
+    #Remove blank rows
+    sbs_df_temp <- sbs_df_temp[!(sbs_df_temp$Rk=="Rk"),]
+    
+    #Add to full dataframe  
+    sbs_df <- rbind.fill(sbs_df, sbs_df_temp)
+    
+    #Clear temporary df's
+    sbs_df_temp <- NULL
+    sbs_id_df <- NULL
+    
+  }
+  
+  #Set colnames for table
+  colnames(sbs_df)[1:32] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'Pos1',
+                              'GP', 'G', 'A', 'PTS', 'PlusMinus', 'PIM', 'PS', 'esG', 'ppG', 'shG',	'GWG', 'esA', 'ppA', 'shA',
+                              'S', 'S_Pct', 'TOI', 'Avg_TOI', 'BLK', 'HIT', 'FOW', 'FOL',	'FO_Pct', 'Player_URL')
+  
+  #Edit table to convert player url into player id, relocate next to player name, and remove rank col
+  sbs_df <- sbs_df %>%
+    mutate(
+      Player_ID = substr(substring(Player_URL, 12),1,nchar(substring(Player_URL, 12))-5)
+    ) %>%
+    relocate(
+      Player_ID, .before = Player_Name
+    ) %>%
+    select(
+      -Rk, -Player_URL
+    ) %>%
+    arrange(
+      Season,
+      Player_ID
+    )
+  
   
   ## Skater Advanced Stats
   
@@ -243,7 +243,7 @@ href_dat <- function(seasons) {
     colnames(sas_df)[1:28] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos', 'GP',
                                 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA', 'esFF_Pct', 'esRelFF_Pct',
                                 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60', 'esTOI_per60', 'TK', 'GV',
-                                'xPlusMinus','alSAtt','SAThruToNet_Pct', 'Player_URL')
+                                'xPlusMinus','TSA','SAThruToNet_Pct', 'Player_URL')
     
     #Breakout Pos col in two based on players who played multiple positions (denoted by "/")
     sas_df <- separate(data = sas_df, col = Pos, into = c("Pos1", "Pos2"), sep = "/")
@@ -373,171 +373,171 @@ href_dat <- function(seasons) {
   
   ## Skater Misc Stats
   
-    #Create table url variables
-    sms_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
-    sms_urlend <- '_skaters-misc.html'
+  #Create table url variables
+  sms_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+  sms_urlend <- '_skaters-misc.html'
+  
+  #Create xpath variables to get player id
+  sms_xpath_strt <- '//*[@id="stats_misc"]/tbody/tr['
+  sms_xpath_mid <- ']/td['
+  sms_xpath_end <- ']/a'
+  
+  #Create empty dataframe to fill
+  sms_df <- data.frame("Season" = integer(),
+                       "Rk" = character(),
+                       "Player" = character(),
+                       "Age" = character(),
+                       "Tm" = character(),
+                       "Pos" = character(),
+                       "GP" = character(),
+                       "GC...8" = character(),
+                       "G...9" = character(),
+                       "A...10" = character(),
+                       "PTS...11" = character(),
+                       "GC...12" = character(),
+                       "PIM" = character(),
+                       "S" = character(),
+                       "G...15" = character(),
+                       "A...16" = character(),
+                       "PTS...17" = character(),
+                       "GC...18" = character(),
+                       "TGF" = character(),
+                       "PGF" = character(),
+                       "TGA" = character(),
+                       "PGA" = character(),
+                       "+/-" = character(),
+                       "xGF" = character(),
+                       "xGA" = character(),
+                       "E+/-" = character(),
+                       "OPS" = character(),
+                       "DPS" = character(),
+                       "PS" = character(),
+                       "Att." = character(),
+                       "Made" = character(),
+                       "Miss" = character(),
+                       "Pct." = character(),
+                       check.names=FALSE
+  )
+  sms_id_df <- data.frame()
+  
+  #Scrape data
+  for (i in sms_yrs){
     
-    #Create xpath variables to get player id
-    sms_xpath_strt <- '//*[@id="stats_misc"]/tbody/tr['
-    sms_xpath_mid <- ']/td['
-    sms_xpath_end <- ']/a'
+    #Create url to scrape
+    sms_url <- read_html(paste(sms_urlstrt, i, sms_urlend, sep=""))
     
-    #Create empty dataframe to fill
-    sms_df <- data.frame("Season" = integer(),
-                         "Rk" = character(),
-                         "Player" = character(),
-                         "Age" = character(),
-                         "Tm" = character(),
-                         "Pos" = character(),
-                         "GP" = character(),
-                         "GC...8" = character(),
-                         "G...9" = character(),
-                         "A...10" = character(),
-                         "PTS...11" = character(),
-                         "GC...12" = character(),
-                         "PIM" = character(),
-                         "S" = character(),
-                         "G...15" = character(),
-                         "A...16" = character(),
-                         "PTS...17" = character(),
-                         "GC...18" = character(),
-                         "TGF" = character(),
-                         "PGF" = character(),
-                         "TGA" = character(),
-                         "PGA" = character(),
-                         "+/-" = character(),
-                         "xGF" = character(),
-                         "xGA" = character(),
-                         "E+/-" = character(),
-                         "OPS" = character(),
-                         "DPS" = character(),
-                         "PS" = character(),
-                         "Att." = character(),
-                         "Made" = character(),
-                         "Miss" = character(),
-                         "Pct." = character(),
-                         check.names=FALSE
-                         )
-    sms_id_df <- data.frame()
+    #Get table
+    sms_df_temp <- sms_url %>%
+      html_node('table#stats_misc') %>%    # select the desired table
+      html_table()
     
-    #Scrape data
-    for (i in sms_yrs){
+    #Edit colnames
+    names(sms_df_temp) <- as.matrix(sms_df_temp[1, ])
+    sms_df_temp <- sms_df_temp[-1, ]
+    sms_df_temp <- cbind(Season = i, sms_df_temp)
+    
+    #Get number of players in table for next loop
+    rows <- (1:nrow(sms_df_temp))
+    
+    #Loop through each row of table to get player url (to be used for player id)
+    for (l in rows) {
       
-      #Create url to scrape
-      sms_url <- read_html(paste(sms_urlstrt, i, sms_urlend, sep=""))
+      #Get url (player id)
+      sms_id_df_temp <- sms_url %>%
+        html_node(
+          xpath = paste(sms_xpath_strt, l, sms_xpath_mid, 1, sms_xpath_end, sep = "")
+        ) %>%
+        html_attr('href')
       
-      #Get table
-      sms_df_temp <- sms_url %>%
-        html_node('table#stats_misc') %>%    # select the desired table
-        html_table()
-      
-      #Edit colnames
-      names(sms_df_temp) <- as.matrix(sms_df_temp[1, ])
-      sms_df_temp <- sms_df_temp[-1, ]
-      sms_df_temp <- cbind(Season = i, sms_df_temp)
-      
-      #Get number of players in table for next loop
-      rows <- (1:nrow(sms_df_temp))
-      
-      #Loop through each row of table to get player url (to be used for player id)
-      for (l in rows) {
-        
-        #Get url (player id)
-        sms_id_df_temp <- sms_url %>%
-          html_node(
-            xpath = paste(sms_xpath_strt, l, sms_xpath_mid, 1, sms_xpath_end, sep = "")
-          ) %>%
-          html_attr('href')
-        
-        #Turn into df to combine with stats table
-        sms_id_df_temp <- data.frame(sms_id_df_temp)
-        sms_id_df <- rbind(sms_id_df, sms_id_df_temp)
-        
-      }
-      
-      #Combine data
-      sms_df_temp <- cbind(sms_df_temp, sms_id_df)
-      
-      #Remove blank rows
-      sms_df_temp <- sms_df_temp[!(sms_df_temp$Rk=="Rk"),]
-      
-      #Add to full dataframe 
-      sms_df <- bind_rows(sms_df, sms_df_temp)
-      
-      #Clear temporary df's
-      sms_df_temp <- NULL
-      sms_id_df <- NULL
+      #Turn into df to combine with stats table
+      sms_id_df_temp <- data.frame(sms_id_df_temp)
+      sms_id_df <- rbind(sms_id_df, sms_id_df_temp)
       
     }
     
-    #Set colnames for table
-    colnames(sms_df)[1:34] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos', 'GP', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm',
-                                'PIM_perGm', 'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'PlusMinus',
-                                'xGF', 'xGA', 'xPlusMinus', 'OPS', 'DPS', 'PS', 'soAtt', 'soMade', 'soMiss', 'soPct', 'Player_URL')
+    #Combine data
+    sms_df_temp <- cbind(sms_df_temp, sms_id_df)
     
-    #Breakout Pos col in two based on players who played multiple positions (denoted by "/")
-    sms_df <- separate(data = sms_df, col = Pos, into = c("Pos1", "Pos2"), sep = "/")
+    #Remove blank rows
+    sms_df_temp <- sms_df_temp[!(sms_df_temp$Rk=="Rk"),]
     
-    #Edit table to convert player url into player id, relocate next to player name, and remove rank col
-    sms_df <- sms_df %>%
-      mutate(
-        Player_ID = substr(substring(Player_URL, 12),1,nchar(substring(Player_URL, 12))-5)
-      ) %>%
-      relocate(
-        Player_ID, .before = Player_Name
-      ) %>%
-      select(
-        -Rk, -Player_URL
-      ) %>%
-      arrange(
-        Season,
-        Player_ID
-      )
+    #Add to full dataframe 
+    sms_df <- bind_rows(sms_df, sms_df_temp)
     
+    #Clear temporary df's
+    sms_df_temp <- NULL
+    sms_id_df <- NULL
+    
+  }
+  
+  #Set colnames for table
+  colnames(sms_df)[1:34] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos', 'GP', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm',
+                              'PIM_perGm', 'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'PlusMinus',
+                              'xGF', 'xGA', 'xPlusMinus', 'OPS', 'DPS', 'PS', 'soAtt', 'soMade', 'soMiss', 'soPct', 'Player_URL')
+  
+  #Breakout Pos col in two based on players who played multiple positions (denoted by "/")
+  sms_df <- separate(data = sms_df, col = Pos, into = c("Pos1", "Pos2"), sep = "/")
+  
+  #Edit table to convert player url into player id, relocate next to player name, and remove rank col
+  sms_df <- sms_df %>%
+    mutate(
+      Player_ID = substr(substring(Player_URL, 12),1,nchar(substring(Player_URL, 12))-5)
+    ) %>%
+    relocate(
+      Player_ID, .before = Player_Name
+    ) %>%
+    select(
+      -Rk, -Player_URL
+    ) %>%
+    arrange(
+      Season,
+      Player_ID
+    )
+  
   
   ## Combine Basic, Advanced, TOI, and Advanced tables
+  
+  skater_season_stats <- sbs_df
+  
+  if (length(sas_yrs) != 0) {
     
-    skater_season_stats <- sbs_df
-    
-    if (length(sas_yrs) != 0) {
-      
-      #Add advanced table to basic stats
-      skater_season_stats <- skater_season_stats %>%
-        left_join(
-          sas_df[, c('Season', 'Player_ID', 'Team', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
-                     'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60',
-                     'esTOI_per60', 'TK', 'GV', 'xPlusMinus','alSAtt','SAThruToNet_Pct')],
-          by = c('Season', 'Player_ID', 'Team')
-        ) %>%
-        relocate(
-          Pos2, .after = Pos1
-        )
-    } else {
-      #skip
-    }
-    
-    if (length(stoi_yrs) != 0) {
-      
-      #Add TOI table
-      skater_season_stats <- skater_season_stats %>%
-        left_join(
-          stoi_df[, c('Season', 'Player_ID', 'Team', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
-                      'ppRelCF_Pct', 'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60')],
-          by = c('Season', 'Player_ID', 'Team')
-        )
-      
-    } else {
-      #skip
-    }
-    
-    #Add Misc table
+    #Add advanced table to basic stats
     skater_season_stats <- skater_season_stats %>%
       left_join(
-        sms_df[, c('Season', 'Player_ID', 'Team', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm', 'PIM_perGm',
-                   'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'xGF', 'xGA',
-                   'OPS', 'DPS', 'soAtt', 'soMade', 'soMiss', 'soPct')],
+        sas_df[, c('Season', 'Player_ID', 'Team', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
+                   'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60',
+                   'esTOI_per60', 'TK', 'GV', 'xPlusMinus','TSA','SAThruToNet_Pct')],
+        by = c('Season', 'Player_ID', 'Team')
+      ) %>%
+      relocate(
+        Pos2, .after = Pos1
+      )
+  } else {
+    #skip
+  }
+  
+  if (length(stoi_yrs) != 0) {
+    
+    #Add TOI table
+    skater_season_stats <- skater_season_stats %>%
+      left_join(
+        stoi_df[, c('Season', 'Player_ID', 'Team', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
+                    'ppRelCF_Pct', 'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60')],
         by = c('Season', 'Player_ID', 'Team')
       )
+    
+  } else {
+    #skip
+  }
+  
+  #Add Misc table
+  skater_season_stats <- skater_season_stats %>%
+    left_join(
+      sms_df[, c('Season', 'Player_ID', 'Team', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm', 'PIM_perGm',
+                 'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'xGF', 'xGA',
+                 'OPS', 'DPS', 'soAtt', 'soMade', 'soMiss', 'soPct')],
+      by = c('Season', 'Player_ID', 'Team')
+    )
   
   
   #-----------------------#
@@ -547,122 +547,122 @@ href_dat <- function(seasons) {
   
   ## Goalie Basic Stats
   
-    #Create table url variables
-    gbs_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
-    gbs_urlend <- '_goalies.html'
+  #Create table url variables
+  gbs_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+  gbs_urlend <- '_goalies.html'
+  
+  #Create xpath variables to get player id
+  gbs_xpath_strt <- '//*[@id="stats"]/tbody/tr['
+  gbs_xpath_mid <- ']/td['
+  gbs_xpath_end <- ']/a'
+  
+  #Create empty dataframe to fill
+  gbs_df <- setNames(data.frame(matrix(ncol = 27, nrow = 0)),
+                     c("Season", "Rk", "Player", "Age", "Tm", "GP", "GS", "W", "L", "T/O",
+                       "GA", "SA", "SV", "SV%", "GAA", "SO", "GPS", "MIN", "QS", "QS%",
+                       "RBS", "GA%-", "GSAA", "G", "A", "PTS", "PIM"))
+  gbs_id_df <- data.frame()
+  
+  #Scrape data
+  for (i in gbs_yrs){
     
-    #Create xpath variables to get player id
-    gbs_xpath_strt <- '//*[@id="stats"]/tbody/tr['
-    gbs_xpath_mid <- ']/td['
-    gbs_xpath_end <- ']/a'
+    #Create url to scrape
+    gbs_url <- read_html(paste(gbs_urlstrt, i, gbs_urlend, sep=""))
     
-    #Create empty dataframe to fill
-    gbs_df <- setNames(data.frame(matrix(ncol = 27, nrow = 0)),
-                       c("Season", "Rk", "Player", "Age", "Tm", "GP", "GS", "W", "L", "T/O",
-                         "GA", "SA", "SV", "SV%", "GAA", "SO", "GPS", "MIN", "QS", "QS%",
-                         "RBS", "GA%-", "GSAA", "G", "A", "PTS", "PIM"))
-    gbs_id_df <- data.frame()
+    #Get table
+    gbs_df_temp <- gbs_url %>%
+      html_node('table#stats') %>%    # select the desired table
+      html_table()
     
-    #Scrape data
-    for (i in gbs_yrs){
+    #Edit colnames
+    names(gbs_df_temp) <- as.matrix(gbs_df_temp[1, ])
+    gbs_df_temp <- gbs_df_temp[-1, ]
+    gbs_df_temp <- cbind(Season = i, gbs_df_temp)
+    
+    #Get number of goalies in table for next loop
+    rows <- (1:nrow(gbs_df_temp))
+    
+    #Loop through each row of table to get player url (to be used for player id)
+    for (l in rows) {
       
-      #Create url to scrape
-      gbs_url <- read_html(paste(gbs_urlstrt, i, gbs_urlend, sep=""))
-      
-      #Get table
-      gbs_df_temp <- gbs_url %>%
-        html_node('table#stats') %>%    # select the desired table
-        html_table()
-      
-      #Edit colnames
-      names(gbs_df_temp) <- as.matrix(gbs_df_temp[1, ])
-      gbs_df_temp <- gbs_df_temp[-1, ]
-      gbs_df_temp <- cbind(Season = i, gbs_df_temp)
-      
-      #Get number of goalies in table for next loop
-      rows <- (1:nrow(gbs_df_temp))
-      
-      #Loop through each row of table to get player url (to be used for player id)
-      for (l in rows) {
-        
-        #Get url (player id)
-        gbs_id_df_temp <- gbs_url %>%
-          html_node(
-            xpath = paste(gbs_xpath_strt, l, gbs_xpath_mid, 1, gbs_xpath_end, sep = "")
-          ) %>%
-          html_attr('href')
-        
-        #Turn into df to combine with stats table
-        gbs_id_df_temp <- data.frame(gbs_id_df_temp)
-        gbs_id_df <- rbind(gbs_id_df, gbs_id_df_temp)
-        
-      }
-      
-      #Combine data
-      gbs_df_temp <- cbind(gbs_df_temp, gbs_id_df)
-      
-      #Find rows of goalies that have multiple listings based on playing for more than one team in season
-      gbs_tots <- gbs_df_temp %>%
-        select(
-          Season, gbs_id_df_temp, Tm 
+      #Get url (player id)
+      gbs_id_df_temp <- gbs_url %>%
+        html_node(
+          xpath = paste(gbs_xpath_strt, l, gbs_xpath_mid, 1, gbs_xpath_end, sep = "")
         ) %>%
-        subset(
-          Tm == 'TOT'
-        )
+        html_attr('href')
       
-      #Mark these based on keeping season totals and broken down by team rows for removal later
-      gbs_df_temp <- gbs_df_temp %>%
-        mutate(
-          Match = gbs_df_temp$gbs_id_df_temp %in% gbs_tots$gbs_id_df_temp,
-          Tm_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', 1, 0),
-          Seas_Sum_Flag = ifelse(Tm == 'TOT', 1, 0)
-        ) %>%
-        relocate(
-          c(Tm_Bkdwn_Flag, Seas_Sum_Flag), .after = Tm
-        ) %>%
-        select(
-          -Match
-        )
-      
-      #Remove blank rows
-      gbs_df_temp <- gbs_df_temp[!(gbs_df_temp$Rk=="Rk"),]
-      
-      #Add to full dataframe 
-      gbs_df <- rbind(gbs_df, gbs_df_temp)
-      
-      #Clear temporary df's
-      gbs_df_temp <- NULL
-      gbs_id_df <- NULL
+      #Turn into df to combine with stats table
+      gbs_id_df_temp <- data.frame(gbs_id_df_temp)
+      gbs_id_df <- rbind(gbs_id_df, gbs_id_df_temp)
       
     }
     
-    #Set colnames for table
-    colnames(gbs_df)[1:30] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team',  'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'GP', 'GS', 'W', 'L',
-                                'TOSL', 'GA', 'SA', 'SV','SV_Pct', 'GAA', 'SO', 'GPS', 'MIN', 'QS', 'QS_Pct', 'RBS', 'GA_Pct_Rel', 'GSAA',
-                                'G', 'A', 'PTS', 'PIM', 'Player_URL')
+    #Combine data
+    gbs_df_temp <- cbind(gbs_df_temp, gbs_id_df)
     
-    #Add Pos 'G'
-    gbs_df <- gbs_df %>%
-      mutate(
-        Pos = 'G'
+    #Find rows of goalies that have multiple listings based on playing for more than one team in season
+    gbs_tots <- gbs_df_temp %>%
+      select(
+        Season, gbs_id_df_temp, Tm 
       ) %>%
-      relocate(
-        Pos, .before = GP
+      subset(
+        Tm == 'TOT'
       )
     
-    #Edit table to convert player url into player id, relocate next to player name, and remove rank col
-    gbs_df <- gbs_df %>%
+    #Mark these based on keeping season totals and broken down by team rows for removal later
+    gbs_df_temp <- gbs_df_temp %>%
       mutate(
-        Player_ID = substr(substring(Player_URL, 12),1,nchar(substring(Player_URL, 12))-5)
+        Match = gbs_df_temp$gbs_id_df_temp %in% gbs_tots$gbs_id_df_temp,
+        Tm_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', 1, 0),
+        Seas_Sum_Flag = ifelse(Tm == 'TOT', 1, 0)
       ) %>%
       relocate(
-        Player_ID, .before = Player_Name
+        c(Tm_Bkdwn_Flag, Seas_Sum_Flag), .after = Tm
       ) %>%
       select(
-        -Rk, -Player_URL
+        -Match
       )
+    
+    #Remove blank rows
+    gbs_df_temp <- gbs_df_temp[!(gbs_df_temp$Rk=="Rk"),]
+    
+    #Add to full dataframe 
+    gbs_df <- rbind(gbs_df, gbs_df_temp)
+    
+    #Clear temporary df's
+    gbs_df_temp <- NULL
+    gbs_id_df <- NULL
+    
+  }
   
-    goalie_season_stats <- gbs_df
+  #Set colnames for table
+  colnames(gbs_df)[1:30] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team',  'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'GP', 'GS', 'W', 'L',
+                              'TOSL', 'GA', 'SA', 'SV','SV_Pct', 'GAA', 'SO', 'GPS', 'MIN', 'QS', 'QS_Pct', 'RBS', 'GA_Pct_Rel', 'GSAA',
+                              'G', 'A', 'PTS', 'PIM', 'Player_URL')
+  
+  #Add Pos 'G'
+  gbs_df <- gbs_df %>%
+    mutate(
+      Pos1 = 'G'
+    ) %>%
+    relocate(
+      Pos1, .before = GP
+    )
+  
+  #Edit table to convert player url into player id, relocate next to player name, and remove rank col
+  gbs_df <- gbs_df %>%
+    mutate(
+      Player_ID = substr(substring(Player_URL, 12),1,nchar(substring(Player_URL, 12))-5)
+    ) %>%
+    relocate(
+      Player_ID, .before = Player_Name
+    ) %>%
+    select(
+      -Rk, -Player_URL
+    )
+  
+  goalie_season_stats <- gbs_df
   
   ## Goalie Shootout Stats
   
@@ -757,12 +757,12 @@ href_dat <- function(seasons) {
         gso_df[, c('Season', 'Player_ID', 'Team', 'soAtt', 'soMade', 'soMiss', 'soPct')],
         by = c('Season', 'Player_ID', 'Team')
       )
-  
+    
   } else{
     #skip
   }
   
-    
+  
   #-----------------------#
   
   
@@ -770,440 +770,440 @@ href_dat <- function(seasons) {
   
   ## League Standings
   
-    #Create table url variables
-    st_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
-    st_urlend <- '_standings.html'
+  #Create table url variables
+  st_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+  st_urlend <- '_standings.html'
+  
+  # no conf from 1918-1974 (#standings)
+  # clarence campbell and prince of wales conf from 1975-1993 (#standings_CAM; #standings_WAL)
+  # east and west conf from 1994+ (#standings_EAS; #standings_WES)
+  
+  #Create empty dataframe to fill
+  st_df <- setNames(data.frame(matrix(ncol = 21, nrow = 0)),
+                    c("Season", "Half", "Conference", "Division", "Team", "GP", "W", "L", "OL", "T",
+                      "PTS", "PTS%", "GF", "GA", "SRS", "SOS", "RPt%", "ROW", "RW", "RgRec", "RgPt%"))
+  st_df$Conference <- as.character(st_df$Conference)
+  
+  #Scrape data
+  for (i in st_yrs){
     
-    # no conf from 1918-1974 (#standings)
-    # clarence campbell and prince of wales conf from 1975-1993 (#standings_CAM; #standings_WAL)
-    # east and west conf from 1994+ (#standings_EAS; #standings_WES)
+    #Create url to scrape
+    st_url <- read_html(paste(st_urlstrt, i, st_urlend, sep=""))
     
-    #Create empty dataframe to fill
-    st_df <- setNames(data.frame(matrix(ncol = 21, nrow = 0)),
-                      c("Season", "Half", "Conference", "Division", "Team", "GP", "W", "L", "OL", "T",
-                        "PTS", "PTS%", "GF", "GA", "SRS", "SOS", "RPt%", "ROW", "RW", "RgRec", "RgPt%"))
-    st_df$Conference <- as.character(st_df$Conference)
-    
-    #Scrape data
-    for (i in st_yrs){
+    #If stmt to deterine how to scrape & build table based on season
+    #Pre 1922 had First and Second half seasons
+    if (i <= 1921) {
       
-      #Create url to scrape
-      st_url <- read_html(paste(st_urlstrt, i, st_urlend, sep=""))
+      #Get table
+      st_df_temp <- st_url %>%
+        html_node('table#standings') %>%
+        html_table()
+      st_df_temp <- cbind(Season = i, st_df_temp)
       
-      #If stmt to deterine how to scrape & build table based on season
-      #Pre 1922 had First and Second half seasons
-      if (i <= 1921) {
-        
-        #Get table
-        st_df_temp <- st_url %>%
-          html_node('table#standings') %>%
-          html_table()
-        st_df_temp <- cbind(Season = i, st_df_temp)
-        
-        #Add col for season Half and rename Team col
-        st_df_temp <- st_df_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_temp)),
-            Half = ifelse(rownum < which(grepl('2nd Half', get('1st Half'))), 'First', 'Second')
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          dplyr::rename(
-            Team = '1st Half'
-          )
-        
-        #Remove blank rows
-        st_df_temp <- st_df_temp[!(st_df_temp$Team == '2nd Half'),]
-        
-        #1922 to 1926 no longer First and Second half seasons, no divisions
-      } else if (i > 1921 & i <= 1926) {
-        
-        #Get table
-        st_df_temp <- st_url %>%
-          html_node('table#standings') %>%
-          html_table()
-        
-        #Edit colnames
-        st_df_temp <- cbind(Season = i, st_df_temp)
-        colnames(st_df_temp)[2] <- 'Team'
-        
-        #1927 to 1938 divisions added  
-      } else if (i > 1926 & i <= 1938) {
-        
-        #Get table
-        st_df_temp <- st_url %>%
-          html_node('table#standings') %>%
-          html_table()
-        
-        #Edit colnames
-        st_df_temp <- cbind(Season = i, st_df_temp)
-        colnames(st_df_temp)[2] <- 'Team'
-        
-        #Add col for division
-        st_df_temp <- st_df_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_temp <- st_df_temp[!grepl('* Division', st_df_temp$Team),]
-        
-        #1939 to 1967 divisions removed
-      } else if (i > 1938 & i <= 1967) {
-        
-        #Get table
-        st_df_temp <- st_url %>%
-          html_node('table#standings') %>%
-          html_table()
-        
-        #Edit colnames
-        st_df_temp <- cbind(Season = i, st_df_temp)
-        colnames(st_df_temp)[2] <- 'Team'
-        
-        #1967 to 1974 split into East and West divisions    
-      } else if (i > 1967 & i <= 1974) {
-        
-        #Get table
-        st_df_temp <- st_url %>%
-          html_node('table#standings') %>%
-          html_table()
-        
-        #Edit colnames
-        st_df_temp <- cbind(Season = i, st_df_temp)
-        colnames(st_df_temp)[2] <- 'Team'
-        
-        #Add col for division
-        st_df_temp <- st_df_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_temp <- st_df_temp[!grepl('* Division', st_df_temp$Team),]
-        
-        #1974 to 1993 split into Clarence Campbell and Prince of Wales conferences 
-      } else if (i > 1974 & i <= 1993) {
-        
-        #Get Clarence Campbell table
-        st_df_cam_temp <- st_url %>%
-          html_node('table#standings_CAM') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_cam_temp <- cbind(Season = i, Conference = as.character('Clarence Campbell'), st_df_cam_temp)
-        colnames(st_df_cam_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_cam_temp <- st_df_cam_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_cam_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_cam_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_cam_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_cam_temp <- st_df_cam_temp[!grepl('* Division', st_df_cam_temp$Team),]
-        
-        #Get Prince of Wales table
-        st_df_wal_temp <- st_url %>%
-          html_node('table#standings_WAL') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_wal_temp <- cbind(Season = i, Conference = as.character('Prince of Wales'), st_df_wal_temp)
-        colnames(st_df_wal_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_wal_temp <- st_df_wal_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_wal_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_wal_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_wal_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_wal_temp <- st_df_wal_temp[!grepl('* Division', st_df_wal_temp$Team),]
-        
-        #Combine conference tables
-        st_df_temp <- rbind(st_df_cam_temp, st_df_wal_temp)
-        
-        #1994 conference names changed to Eastern and Western conferences
-      } else if (i > 1993 & i <= 1998) {
-        
-        #Get Eastern table
-        st_df_eas_temp <- st_url %>%
-          html_node('table#standings_EAS') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_eas_temp <- cbind(Season = i, Conference = as.character('Eastern'), st_df_eas_temp)
-        colnames(st_df_eas_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_eas_temp <- st_df_eas_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_eas_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_eas_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_eas_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_eas_temp <- st_df_eas_temp[!grepl('* Division', st_df_eas_temp$Team),]
-        
-        #Get Western table
-        st_df_wes_temp <- st_url %>%
-          html_node('table#standings_WES') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_wes_temp <- cbind(Season = i, Conference = as.character('Western'), st_df_wes_temp)
-        colnames(st_df_wes_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_wes_temp <- st_df_wes_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_wes_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_wes_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_wes_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_wes_temp <- st_df_wes_temp[!grepl('* Division', st_df_wes_temp$Team),]
-        
-        #Combine conference tables
-        st_df_temp <- rbind(st_df_eas_temp, st_df_wes_temp)
-        
-        #1994 to 2013 conference names changed to Eastern and Western conferences with 3 divisions each
-      } else if (i > 1998 & i <= 2013) {
-        
-        #Get Eastern table
-        st_df_eas_temp <- st_url %>%
-          html_node('table#standings_EAS') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_eas_temp <- cbind(Season = i, Conference = 'Eastern', st_df_eas_temp)
-        colnames(st_df_eas_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_eas_temp <- st_df_eas_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_eas_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum < which(grepl('* Division', Team))[2], Team[1],
-                                   ifelse(rownum < which(grepl('* Division', Team))[3], Team[which(grepl('* Division', Team))[2]],
-                                          Team[which(grepl('* Division', Team))[3]]))
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_eas_temp <- st_df_eas_temp[!grepl('* Division', st_df_eas_temp$Team),]
-        
-        #Get Western table
-        st_df_wes_temp <- st_url %>%
-          html_node('table#standings_WES') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_wes_temp <- cbind(Season = i, Conference = 'Western', st_df_wes_temp)
-        colnames(st_df_wes_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_wes_temp <- st_df_wes_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_wes_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum < which(grepl('* Division', Team))[2], Team[1],
-                                   ifelse(rownum < which(grepl('* Division', Team))[3], Team[which(grepl('* Division', Team))[2]],
-                                          Team[which(grepl('* Division', Team))[3]]))
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_wes_temp <- st_df_wes_temp[!grepl('* Division', st_df_wes_temp$Team),]
-        
-        #Combine conference tables
-        st_df_temp <- rbind(st_df_eas_temp, st_df_wes_temp)
-        
-        #2013 to 2020 changed to 2 divisions in each conference
-      } else if (i > 2013 & i <= 2020) {
-        
-        #Get Eastern table
-        st_df_eas_temp <- st_url %>%
-          html_node('table#standings_EAS') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_eas_temp <- cbind(Season = i, Conference = as.character('Eastern'), st_df_eas_temp)
-        colnames(st_df_eas_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_eas_temp <- st_df_eas_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_eas_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_eas_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_eas_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_eas_temp <- st_df_eas_temp[!grepl('* Division', st_df_eas_temp$Team),]
-        
-        #Get Western table
-        st_df_wes_temp <- st_url %>%
-          html_node('table#standings_WES') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_wes_temp <- cbind(Season = i, Conference = as.character('Western'), st_df_wes_temp)
-        colnames(st_df_wes_temp)[3] <- 'Team'
-        
-        #Add col for division
-        st_df_wes_temp <- st_df_wes_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_wes_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_wes_temp)])), Team[1],
-                                   Team[which(grepl('* Division', Team[2:nrow(st_df_wes_temp)]))+1])
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_wes_temp <- st_df_wes_temp[!grepl('* Division', st_df_wes_temp$Team),]
-        
-        #Combine conference tables
-        st_df_temp <- rbind(st_df_eas_temp, st_df_wes_temp)
-        
-        #2021 no conferences, four divisions      
-      } else if (i > 2020) {
-        
-        #Get table
-        st_df_temp <- st_url %>%
-          html_node('table#standings') %>%
-          html_table()
-        
-        #Edit cols
-        st_df_temp <- cbind(Season = i, st_df_temp)
-        colnames(st_df_temp)[2] <- 'Team'
-        
-        #Add col for division
-        st_df_temp <- st_df_temp %>%
-          mutate(
-            rownum = as.numeric(row.names(st_df_temp)),
-            Division = gsub(" Division", "", 
-                            ifelse(rownum < which(grepl('* Division', Team))[2], Team[1],
-                                   ifelse(rownum < which(grepl('* Division', Team))[3], Team[which(grepl('* Division', Team))[2]],
-                                          ifelse(rownum < which(grepl('* Division', Team))[4], Team[which(grepl('* Division', Team))[3]],
-                                                 Team[which(grepl('* Division', Team))[4]])))
-            )
-          ) %>%
-          select(
-            -rownum
-          ) %>%
-          relocate(
-            Division, .before = Team
-          )
-        
-        #Remove blank rows
-        st_df_temp <- st_df_temp[!grepl('* Division', st_df_temp$Team),]
-        
-      }
+      #Add col for season Half and rename Team col
+      st_df_temp <- st_df_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_temp)),
+          Half = ifelse(rownum < which(grepl('2nd Half', get('1st Half'))), 'First', 'Second')
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        dplyr::rename(
+          Team = '1st Half'
+        )
       
-      st_df  <- rbind.fill(st_df, st_df_temp)
-      st_df_temp <- NULL
+      #Remove blank rows
+      st_df_temp <- st_df_temp[!(st_df_temp$Team == '2nd Half'),]
+      
+      #1922 to 1926 no longer First and Second half seasons, no divisions
+    } else if (i > 1921 & i <= 1926) {
+      
+      #Get table
+      st_df_temp <- st_url %>%
+        html_node('table#standings') %>%
+        html_table()
+      
+      #Edit colnames
+      st_df_temp <- cbind(Season = i, st_df_temp)
+      colnames(st_df_temp)[2] <- 'Team'
+      
+      #1927 to 1938 divisions added  
+    } else if (i > 1926 & i <= 1938) {
+      
+      #Get table
+      st_df_temp <- st_url %>%
+        html_node('table#standings') %>%
+        html_table()
+      
+      #Edit colnames
+      st_df_temp <- cbind(Season = i, st_df_temp)
+      colnames(st_df_temp)[2] <- 'Team'
+      
+      #Add col for division
+      st_df_temp <- st_df_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_temp <- st_df_temp[!grepl('* Division', st_df_temp$Team),]
+      
+      #1939 to 1967 divisions removed
+    } else if (i > 1938 & i <= 1967) {
+      
+      #Get table
+      st_df_temp <- st_url %>%
+        html_node('table#standings') %>%
+        html_table()
+      
+      #Edit colnames
+      st_df_temp <- cbind(Season = i, st_df_temp)
+      colnames(st_df_temp)[2] <- 'Team'
+      
+      #1967 to 1974 split into East and West divisions    
+    } else if (i > 1967 & i <= 1974) {
+      
+      #Get table
+      st_df_temp <- st_url %>%
+        html_node('table#standings') %>%
+        html_table()
+      
+      #Edit colnames
+      st_df_temp <- cbind(Season = i, st_df_temp)
+      colnames(st_df_temp)[2] <- 'Team'
+      
+      #Add col for division
+      st_df_temp <- st_df_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_temp <- st_df_temp[!grepl('* Division', st_df_temp$Team),]
+      
+      #1974 to 1993 split into Clarence Campbell and Prince of Wales conferences 
+    } else if (i > 1974 & i <= 1993) {
+      
+      #Get Clarence Campbell table
+      st_df_cam_temp <- st_url %>%
+        html_node('table#standings_CAM') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_cam_temp <- cbind(Season = i, Conference = as.character('Clarence Campbell'), st_df_cam_temp)
+      colnames(st_df_cam_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_cam_temp <- st_df_cam_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_cam_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_cam_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_cam_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_cam_temp <- st_df_cam_temp[!grepl('* Division', st_df_cam_temp$Team),]
+      
+      #Get Prince of Wales table
+      st_df_wal_temp <- st_url %>%
+        html_node('table#standings_WAL') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_wal_temp <- cbind(Season = i, Conference = as.character('Prince of Wales'), st_df_wal_temp)
+      colnames(st_df_wal_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_wal_temp <- st_df_wal_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_wal_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_wal_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_wal_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_wal_temp <- st_df_wal_temp[!grepl('* Division', st_df_wal_temp$Team),]
+      
+      #Combine conference tables
+      st_df_temp <- rbind(st_df_cam_temp, st_df_wal_temp)
+      
+      #1994 conference names changed to Eastern and Western conferences
+    } else if (i > 1993 & i <= 1998) {
+      
+      #Get Eastern table
+      st_df_eas_temp <- st_url %>%
+        html_node('table#standings_EAS') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_eas_temp <- cbind(Season = i, Conference = as.character('Eastern'), st_df_eas_temp)
+      colnames(st_df_eas_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_eas_temp <- st_df_eas_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_eas_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_eas_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_eas_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_eas_temp <- st_df_eas_temp[!grepl('* Division', st_df_eas_temp$Team),]
+      
+      #Get Western table
+      st_df_wes_temp <- st_url %>%
+        html_node('table#standings_WES') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_wes_temp <- cbind(Season = i, Conference = as.character('Western'), st_df_wes_temp)
+      colnames(st_df_wes_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_wes_temp <- st_df_wes_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_wes_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_wes_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_wes_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_wes_temp <- st_df_wes_temp[!grepl('* Division', st_df_wes_temp$Team),]
+      
+      #Combine conference tables
+      st_df_temp <- rbind(st_df_eas_temp, st_df_wes_temp)
+      
+      #1994 to 2013 conference names changed to Eastern and Western conferences with 3 divisions each
+    } else if (i > 1998 & i <= 2013) {
+      
+      #Get Eastern table
+      st_df_eas_temp <- st_url %>%
+        html_node('table#standings_EAS') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_eas_temp <- cbind(Season = i, Conference = 'Eastern', st_df_eas_temp)
+      colnames(st_df_eas_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_eas_temp <- st_df_eas_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_eas_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum < which(grepl('* Division', Team))[2], Team[1],
+                                 ifelse(rownum < which(grepl('* Division', Team))[3], Team[which(grepl('* Division', Team))[2]],
+                                        Team[which(grepl('* Division', Team))[3]]))
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_eas_temp <- st_df_eas_temp[!grepl('* Division', st_df_eas_temp$Team),]
+      
+      #Get Western table
+      st_df_wes_temp <- st_url %>%
+        html_node('table#standings_WES') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_wes_temp <- cbind(Season = i, Conference = 'Western', st_df_wes_temp)
+      colnames(st_df_wes_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_wes_temp <- st_df_wes_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_wes_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum < which(grepl('* Division', Team))[2], Team[1],
+                                 ifelse(rownum < which(grepl('* Division', Team))[3], Team[which(grepl('* Division', Team))[2]],
+                                        Team[which(grepl('* Division', Team))[3]]))
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_wes_temp <- st_df_wes_temp[!grepl('* Division', st_df_wes_temp$Team),]
+      
+      #Combine conference tables
+      st_df_temp <- rbind(st_df_eas_temp, st_df_wes_temp)
+      
+      #2013 to 2020 changed to 2 divisions in each conference
+    } else if (i > 2013 & i <= 2020) {
+      
+      #Get Eastern table
+      st_df_eas_temp <- st_url %>%
+        html_node('table#standings_EAS') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_eas_temp <- cbind(Season = i, Conference = as.character('Eastern'), st_df_eas_temp)
+      colnames(st_df_eas_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_eas_temp <- st_df_eas_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_eas_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_eas_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_eas_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_eas_temp <- st_df_eas_temp[!grepl('* Division', st_df_eas_temp$Team),]
+      
+      #Get Western table
+      st_df_wes_temp <- st_url %>%
+        html_node('table#standings_WES') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_wes_temp <- cbind(Season = i, Conference = as.character('Western'), st_df_wes_temp)
+      colnames(st_df_wes_temp)[3] <- 'Team'
+      
+      #Add col for division
+      st_df_wes_temp <- st_df_wes_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_wes_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum <= which(grepl('* Division', Team[2:nrow(st_df_wes_temp)])), Team[1],
+                                 Team[which(grepl('* Division', Team[2:nrow(st_df_wes_temp)]))+1])
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_wes_temp <- st_df_wes_temp[!grepl('* Division', st_df_wes_temp$Team),]
+      
+      #Combine conference tables
+      st_df_temp <- rbind(st_df_eas_temp, st_df_wes_temp)
+      
+      #2021 no conferences, four divisions      
+    } else if (i > 2020) {
+      
+      #Get table
+      st_df_temp <- st_url %>%
+        html_node('table#standings') %>%
+        html_table()
+      
+      #Edit cols
+      st_df_temp <- cbind(Season = i, st_df_temp)
+      colnames(st_df_temp)[2] <- 'Team'
+      
+      #Add col for division
+      st_df_temp <- st_df_temp %>%
+        mutate(
+          rownum = as.numeric(row.names(st_df_temp)),
+          Division = gsub(" Division", "", 
+                          ifelse(rownum < which(grepl('* Division', Team))[2], Team[1],
+                                 ifelse(rownum < which(grepl('* Division', Team))[3], Team[which(grepl('* Division', Team))[2]],
+                                        ifelse(rownum < which(grepl('* Division', Team))[4], Team[which(grepl('* Division', Team))[3]],
+                                               Team[which(grepl('* Division', Team))[4]])))
+          )
+        ) %>%
+        select(
+          -rownum
+        ) %>%
+        relocate(
+          Division, .before = Team
+        )
+      
+      #Remove blank rows
+      st_df_temp <- st_df_temp[!grepl('* Division', st_df_temp$Team),]
       
     }
     
-    #Set colnames for table
-    colnames(gbs_df)[1:30] <- c("Season", "Half", "Conference", "Division", "Team", "GP", "W", "L", "OL", "T",
-                                "PTS", "PTS_Pct", "GF", "GA", "SRS", "SOS", "RPt_Pct", "ROW", "RW", "RgRec", "RgPt_Pct")
+    st_df  <- rbind.fill(st_df, st_df_temp)
+    st_df_temp <- NULL
     
-    #Add Playoff col
-    st_df <- st_df %>%
-      mutate(
-        Playoffs = ifelse(grepl('\\*', st_df$Team) == TRUE, "Y", "N")
-      ) %>%
-      relocate(
-        Playoffs, .after = Team
-      )
+  }
+  
+  #Set colnames for table
+  colnames(st_df)[1:30] <- c("Season", "Half", "Conference", "Division", "Team", "GP", "W", "L", "OL", "T",
+                             "PTS", "PTS_Pct", "GF", "GA", "SRS", "SOS", "RPt_Pct", "ROW", "RW", "RgRec", "RgPt_Pct")
+  
+  #Add Playoff col
+  st_df <- st_df %>%
+    mutate(
+      Playoffs = ifelse(grepl('\\*', st_df$Team) == TRUE, "Y", "N")
+    ) %>%
+    relocate(
+      Playoffs, .after = Team
+    )
   
   
   #-------------------------#  
@@ -1212,30 +1212,30 @@ href_dat <- function(seasons) {
   #---  SCHEDULE & RESULTS  ---#
   
   ## Regular Season
+  
+  rss_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+  rss_urlend <- '_games.html'
+  
+  rss_df <- data.frame()
+  
+  for (i in rss_yrs){
     
-    rss_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
-    rss_urlend <- '_games.html'
+    rss_url <- read_html(paste(rss_urlstrt, i, rss_urlend, sep=""))
     
-    rss_df <- data.frame()
+    rss_df_temp <- rss_url %>%
+      html_node('table#games') %>%    # select the desired table
+      html_table()
     
-    for (i in rss_yrs){
-      
-      rss_url <- read_html(paste(rss_urlstrt, i, rss_urlend, sep=""))
-      
-      rss_df_temp <- rss_url %>%
-        html_node('table#games') %>%    # select the desired table
-        html_table()
-      
-      #Add cols
-      rss_df_temp <- cbind(Season = i, 'Game Type' = 'RS', rss_df_temp)
-      
-      rss_df <- rbind(rss_df, rss_df_temp)
-      rss_df_temp <- NULL
-      
-    }
+    #Add cols
+    rss_df_temp <- cbind(Season = i, 'Game Type' = 'RS', rss_df_temp)
     
-    colnames(rss_df) <- c('Season', 'Game Type', 'Date', 'Away Team', 'Away Score', 'Home Team', 'Home Score',
-                          'Ended', 'Attendance', 'Game Length', 'Notes')
+    rss_df <- rbind(rss_df, rss_df_temp)
+    rss_df_temp <- NULL
+    
+  }
+  
+  colnames(rss_df) <- c('Season', 'Game_Type', 'Date', 'Away_Team', 'Away_Score', 'Home_Team', 'Home_Score',
+                        'Ended', 'Attendance', 'Game_Length', 'Game_Notes')
   
   
   #---  CREATE LIST OF ITEMS TO RETURN  ---#
@@ -1244,7 +1244,7 @@ href_dat <- function(seasons) {
                           'goalie_stats' = goalie_season_stats,
                           'league_standings' = st_df,
                           'reg_sched_results' = rss_df
-                          )
+  )
   
   return(href_dat_output)
   
