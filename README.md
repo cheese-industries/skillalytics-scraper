@@ -11,10 +11,6 @@ Sports data scraping tool and corresponding data output for use in sports analyt
 <p>Example usage:</p>
 
 ```
-#Package dependencies
-library(tidyverse)
-library(rvest)
-
 #Select years to scrape
 output_df <- href_dat(seasons = c(1918:2021))
 
