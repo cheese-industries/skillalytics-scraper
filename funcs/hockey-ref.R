@@ -5,15 +5,20 @@
 #                                                                                                      #  
 ########################################################################################################
 
-#2021-06-14
+#2021-08-01
 
 #Package dependencies
 # library(tidyverse)
+# library(plyr)
 # library(rvest)
 
 href_dat <- function(seasons) {
   
   #---  SETUP  ---#
+  
+  #Require packages
+  libs <- c("tidyverse", "plyr", "rvest")
+  lapply(libs, require, character.only = TRUE)
   
   #Available years by table
   sbs_yrs <- c(1918:2004, 2006:2021)
@@ -120,6 +125,14 @@ href_dat <- function(seasons) {
       subset(
         Tm == 'TOT'
       )
+    
+    #Set names for temporary df
+    #this needs to be done to account for multiple columns with same name (i.e. EV, PP, SH), which in table on site has a second header
+    #to indicate Goals vs Assists
+    sbs_df_temp <- setNames(sbs_df_temp,
+                            c("Season", "Rk", "Player", "Age", "Tm", "Pos", "GP","G", "A", "PTS", "+/-", "PIM",
+                              "PS", "EV", "PP", "SH", "GW", "EV.1", "PP.1", "SH.1", "S", "S%", "TOI", "ATOI",
+                              "BLK", "HIT", "FOW", "FOL", "FO%", "sbs_id_df_temp"))
     
     #Mark these based on keeping season totals and broken down by team rows for removal later
     sbs_df_temp <- sbs_df_temp %>%
@@ -1193,7 +1206,7 @@ href_dat <- function(seasons) {
   }
   
   #Set colnames for table
-  colnames(st_df)[1:30] <- c("Season", "Half", "Conference", "Division", "Team", "GP", "W", "L", "OL", "T",
+  colnames(st_df)[1:21] <- c("Season", "Half", "Conference", "Division", "Team", "GP", "W", "L", "OL", "T",
                              "PTS", "PTS_Pct", "GF", "GA", "SRS", "SOS", "RPt_Pct", "ROW", "RW", "RgRec", "RgPt_Pct")
   
   #Add Playoff col
