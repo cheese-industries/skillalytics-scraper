@@ -13,6 +13,6 @@ href_standings(seas)
 Gathers year-by-year standings from each NHL season selected and combines results into one dataset.
 }
 \examples{
-href_standings()
+href_standings(seas = c(1990:1999))
 }
 \keyword{skillalytics}

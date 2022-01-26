@@ -17,6 +17,6 @@ href_results(seas, reg = TRUE, post = TRUE)
 Gathers year-by-year game results from each NHL season selected and combines results into one dataset.
 }
 \examples{
-href_results()
+href_results(seas = c(1990:1999), reg = TRUE, post = TRUE)
 }
 \keyword{skillalytics}

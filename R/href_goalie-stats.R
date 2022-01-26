@@ -10,7 +10,7 @@
 #' @keywords skillalytics
 #' @export
 #' @examples
-#' href_goalie_stats()
+#' href_goalie_stats(seas = c(1990:1999), reg = TRUE, post = TRUE)
 
 
 # HREF GOALIE STATS -------------------------------------------------------

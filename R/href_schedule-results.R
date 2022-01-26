@@ -10,7 +10,7 @@
 #' @keywords skillalytics
 #' @export
 #' @examples
-#' href_results()
+#' href_results(seas = c(1990:1999), reg = TRUE, post = TRUE)
 
 
 # HREF GAME RESULTS -------------------------------------------------------

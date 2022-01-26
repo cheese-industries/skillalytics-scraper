@@ -17,6 +17,6 @@ href_skater_stats(seas, reg = TRUE, post = TRUE)
 Gathers NHL skater stats by season for the selected seasons and combines results into one dataset.
 }
 \examples{
-href_skater_stats()
+href_skater_stats(seas = c(1990:1999), reg = TRUE, post = TRUE)
 }
 \keyword{skillalytics}

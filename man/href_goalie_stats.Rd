@@ -17,6 +17,6 @@ href_goalie_stats(seas, reg = TRUE, post = TRUE)
 Gathers NHL goalie stats by season for the selected seasons and combines results into one dataset.
 }
 \examples{
-href_goalie_stats()
+href_goalie_stats(seas = c(1990:1999), reg = TRUE, post = TRUE)
 }
 \keyword{skillalytics}

@@ -8,7 +8,7 @@
 #' @keywords skillalytics
 #' @export
 #' @examples
-#' href_standings()
+#' href_standings(seas = c(1990:1999))
 
 
 # HREF STANDINGS ----------------------------------------------------------

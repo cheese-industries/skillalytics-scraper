@@ -10,7 +10,7 @@
 #' @keywords skillalytics
 #' @export
 #' @examples
-#' href_skater_stats()
+#' href_skater_stats(seas = c(1990:1999), reg = TRUE, post = TRUE)
 
 
 # HREF SKATER STATS -------------------------------------------------------
