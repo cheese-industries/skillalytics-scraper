@@ -4,7 +4,7 @@
 #' Scrape NHL Goalie Stats from hockey-reference.com
 #'
 #' Gathers NHL goalie stats by season for the selected seasons and combines results into one dataset.
-#' @param seas Which seasons would you like to retrieve data for? No default set.
+#' @param seas Which seasons would you like to retrieve data for? No default set. Earliest available season is 1918.
 #' @param reg Include regular season data? Defaults to TRUE
 #' @param post Include postseason data? Defaults to TRUE
 #' @keywords skillalytics

@@ -7,7 +7,7 @@
 href_goalie_stats(seas, reg = TRUE, post = TRUE)
 }
 \arguments{
-\item{seas}{Which seasons would you like to retrieve data for? No default set.}
+\item{seas}{Which seasons would you like to retrieve data for? No default set. Earliest available season is 1918.}
 
 \item{reg}{Include regular season data? Defaults to TRUE}
 

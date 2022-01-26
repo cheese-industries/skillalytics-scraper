@@ -7,7 +7,7 @@
 href_standings(seas)
 }
 \arguments{
-\item{seas}{Which seasons would you like to retrieve data for? No default set.}
+\item{seas}{Which seasons would you like to retrieve data for? No default set. Earliest available season is 1918.}
 }
 \description{
 Gathers year-by-year standings from each NHL season selected and combines results into one dataset.
