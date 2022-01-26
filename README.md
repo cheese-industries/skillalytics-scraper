@@ -1,30 +1,36 @@
 # Skillalytics Scraper
-Sports data scraping tool and corresponding data output for use in sports analytics projects.
-
-<b><i>Currently only includes function for scraping <a href="https://www.hockey-reference.com/">hockey-reference.com</a>, but more functions coming soon.</i></b>
+R-based sports data scraping tool as well as repository of corresponding data output for use in sports analytics projects.
 
 # 
 
-<h3>Hockey-Ref</h3>
-<p>The "hockey-ref.R" file contains the <code>href_dat</code> function that allows you to scraper hockey-reference.com by season for: skater stats, goalie stats, league standings, and schedule and game results. (Currently this only pulls regular season data).</p>
+<h3>Installation</h3>
+<p>The package can be installed within R by leveraging the install_github command from the devtools package, as follows:</p>
+```
+devtools::install_github("https://github.com/skillalytics/skillalytics-scraper")
+library("skillalytics")
+```
+#
 
-<p>Example usage:</p>
+<h3>Usage</h3>
+<p>Current functions within the package provide data scraping for NHL league standings, game results, skater stats, and goalie stats.</p>
 
 ```
-#Select years to scrape
-output_df <- href_dat(seasons = c(1918:2021))
+# Standings
+standings_tbl <- href_standings(seas = c(1990:1999))
 
-#Get tables from returned list
-skater_season_stats <- output_df$skater_stats
-goalie_season_stats <- output_df$goalie_stats
-league_standings <- output_df$league_standings
-reg_sched_results <- output_df$reg_sched_results
+# Game Results
+results_tbl <- href_results(seas = c(1990:1999), reg = TRUE, post = TRUE)
+
+# Skater Stats
+skater_stats <- href_skater_stats(seas = c(1990:1999), reg = TRUE, post = TRUE)
+
+# Goalie Stats
+goalie_stats <- href_goalie_stats(seas = c(1990:1999), reg = TRUE, post = TRUE)
 ```
 
 <h4>Notes</h4>
-<p>The function only has one argument (seasons) which requires a numerical input of the seasons you are looking to scrape.
-<br><i>*If scraping multiple seasons be sure to encapsulate the input within the combine <code>c()</code> function.</i></p>
-<p>The function outputs a four item lists of tables scraped. These can be extracted and added to their own R elements after the function has run as shown in the last part of the example above.</p>
+<p>Each function has a parameter to select seasons to scrape which has no default set and must be numeric. Season year is based on when that season ends, therefore, setting the parameter to 2021 would gather 2020-2021 season data.  If scraping multiple seasons be sure to encapsulate the input within the combine <code>c()</code> function.</i></p>
+<p>The game results, skater stats, and goalie stats functions also include parameters to select regular season and postseason data. Both of these are boolean and default to TRUE. If selecting both the final output returned will be one dataframe combined with a column titled Game_Type with values of 'REG' and 'POST' to differentiate the data.</p>
 
 <h4>! Important</h4>
-<p>The dataset contains both a team-by-team breakdown of player stats (for players who played on multiple teams within one season) as well as a season total for those players (marked as 'TOT' in the Team name variable). Depending on your purpose, the dataset will need to be filitered accordingly to ensure you are not double counting those statistics.</p>
+<p>The dataset contains both a team-by-team breakdown of player stats (for players who played on multiple teams within one season) as well as a season total for those players (marked as 'TOT' in the Team_Name variable). Depending on your purpose, the dataset will need to be filtered accordingly to ensure you are not double counting those statistics.</p>
