@@ -5,11 +5,12 @@ R-based sports data scraping tool as well as repository of corresponding data ou
 
 <h3>Installation</h3>
 <p>The package can be installed within R by leveraging the install_github command from the devtools package, as follows:</p>
+
 ```
 devtools::install_github("https://github.com/skillalytics/skillalytics-scraper")
 library("skillalytics")
 ```
-#
+# 
 
 <h3>Usage</h3>
 <p>Current functions within the package provide data scraping for NHL league standings, game results, skater stats, and goalie stats.</p>
