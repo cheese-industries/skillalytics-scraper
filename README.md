@@ -4,7 +4,7 @@ R-based sports data scraping tool as well as repository of corresponding data ou
 # 
 
 <h3>Installation</h3>
-<p>The package can be installed within R by leveraging the install_github command from the devtools package, as follows:</p>
+<p>The package can be installed within R by leveraging the install_github command from the <a href="https://github.com/r-lib/devtools">devtools</a> package, as follows:</p>
 
 ```
 devtools::install_github("https://github.com/skillalytics/skillalytics-scraper")
