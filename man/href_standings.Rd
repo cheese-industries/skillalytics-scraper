@@ -2,7 +2,7 @@
 % Please edit documentation in R/href_standings.R
 \name{href_standings}
 \alias{href_standings}
-\title{Scrape seasonal NHL standings from hockey-reference.com}
+\title{Scrape NHL Standings from hockey-reference.com}
 \usage{
 href_standings(seas)
 }

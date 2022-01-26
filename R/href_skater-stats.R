@@ -1,7 +1,7 @@
 
 # DETAILS -----------------------------------------------------------------
 
-#' Scrape regular season and playoff skater stats from NHL seasons from hockey-reference.com
+#' Scrape NHL Skater Stats from hockey-reference.com
 #'
 #' Gathers NHL skater stats by season for the selected seasons and combines results into one dataset.
 #' @param seas Which seasons would you like to retrieve data for? No default set.

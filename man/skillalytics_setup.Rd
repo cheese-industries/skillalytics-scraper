@@ -2,7 +2,7 @@
 % Please edit documentation in R/setup.R
 \name{skillalytics_setup}
 \alias{skillalytics_setup}
-\title{Setup function for running all other Skillalytics R functions}
+\title{Setup Function for Skillalytics R functions}
 \usage{
 skillalytics_setup(seas)
 }

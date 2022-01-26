@@ -1,7 +1,7 @@
 
 # DETAILS -----------------------------------------------------------------
 
-#' Scrape seasonal NHL standings from hockey-reference.com
+#' Scrape NHL Standings from hockey-reference.com
 #'
 #' Gathers year-by-year standings from each NHL season selected and combines results into one dataset.
 #' @param seas Which seasons would you like to retrieve data for? No default set.

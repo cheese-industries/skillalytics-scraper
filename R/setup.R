@@ -1,10 +1,10 @@
 
 # DETAILS -----------------------------------------------------------------
 
-#' Setup function for running all other Skillalytics R functions
-#' 
-#' This ensures proper setup of seasons selected to scrape and team name/ids for scraping 
-#' and organizing datasets. 
+#' Setup Function for Skillalytics R functions
+#'
+#' This ensures proper setup of seasons selected to scrape and team name/ids for scraping
+#' and organizing datasets.
 #' @param seas Which seasons would you like to retrieve data for? No default set.
 #' @keywords skillalytics
 #' @export
@@ -15,16 +15,16 @@
 # SETUP -------------------------------------------------------------------
 
 skillalytics_setup <- function(seas){
-  
+
   # SEASONS -----------------------------------------------------------------
-  
+
     # Require Packages
     paks <- c("plyr", "tidyverse", "rvest" , "tictoc", "crayon", "lubridate")
     suppressWarnings(suppressMessages(lapply(paks, require, character.only = TRUE)))
-    
+
     # Get Max Year
     curr_yr <- format(Sys.Date(), "%Y")
-    
+
     # Available Years by Table
     # Regular
     sbs_yrs <- c(1918:2004, 2006:curr_yr)
@@ -41,7 +41,7 @@ skillalytics_setup <- function(seas){
     sptoi_yrs <- c(2008:curr_yr)
     gbps_yrs <- c(1918:1919, 1921:2004, 2006:curr_yr)
     resp_yrs <- c(1918:1919, 1921:2004, 2006:curr_yr)
-    
+
     # Create Year Availability Matrix
     all_yrs <- c(1918:curr_yr)
     yrs_mat <- data.frame(Year = all_yrs)
@@ -63,10 +63,10 @@ skillalytics_setup <- function(seas){
         GBPS = ifelse(Year %in% gbps_yrs, 1, 0),
         RESP = ifelse(Year %in% resp_yrs, 1, 0),
       )
-    
+
     # Years Selected
     sel_yrs <- data.frame(Years = seas)
-    
+
     # Years to Scrape
     # Regular
     sbs_yrs <- yrs_mat %>% subset(Year %in% sel_yrs$Years & SBS == 1) %>% select(Year) %>% pull(1)
@@ -83,7 +83,7 @@ skillalytics_setup <- function(seas){
     sptoi_yrs <- yrs_mat %>% subset(Year %in% sel_yrs$Years & SPTOI == 1) %>% select(Year) %>% pull(1)
     gbps_yrs <- yrs_mat %>% subset(Year %in% sel_yrs$Years & GBPS == 1) %>% select(Year) %>% pull(1)
     resp_yrs <- yrs_mat %>% subset(Year %in% sel_yrs$Years & RESP == 1) %>% select(Year) %>% pull(1)
-    
+
     # Generate List of Output
     seas_list <- list(
       "sbs_yrs" = sbs_yrs,
@@ -100,7 +100,7 @@ skillalytics_setup <- function(seas){
       "gbps_yrs" = gbps_yrs,
       "resp_yrs" = resp_yrs
     )
-    
+
 
   # TEAMS -------------------------------------------------------------------
 
@@ -127,19 +127,18 @@ skillalytics_setup <- function(seas){
                     'Total'
       )
     )
-    
+
     # Add Team Reference to Output List
     team_list <- list("tm_ref" = tm_ref)
-    
+
 
   # RETURN OUTPUT -----------------------------------------------------------
-  
+
     # Combine List Items
     setup_return <- append(seas_list, team_list)
-    
+
     # Return
     return(setup_return)
-  
+
 } #end function
-  
-  
+

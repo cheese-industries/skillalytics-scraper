@@ -2,7 +2,7 @@
 % Please edit documentation in R/href_skater-stats.R
 \name{href_skater_stats}
 \alias{href_skater_stats}
-\title{Scrape regular season and playoff skater stats from NHL seasons from hockey-reference.com}
+\title{Scrape NHL Skater Stats from hockey-reference.com}
 \usage{
 href_skater_stats(seas, reg = TRUE, post = TRUE)
 }

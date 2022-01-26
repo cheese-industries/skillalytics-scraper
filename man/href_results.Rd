@@ -2,7 +2,7 @@
 % Please edit documentation in R/href_schedule-results.R
 \name{href_results}
 \alias{href_results}
-\title{Scrape seasonal NHL game results from hockey-reference.com}
+\title{Scrape NHL Game Results from hockey-reference.com}
 \usage{
 href_results(seas, reg = TRUE, post = TRUE)
 }
