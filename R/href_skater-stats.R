@@ -718,7 +718,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
             sas_df[, c('Season', 'Player_ID', 'Team_ID', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
                        'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60',
                        'esTOI_per60', 'TK', 'GV', 'xPlusMinus','TSA','SAThruToNet_Pct')],
-            by = c('Season', 'Player_ID', 'Team')
+            by = c('Season', 'Player_ID', 'Team_ID')
           ) %>%
           relocate(
             Pos2, .after = Pos1
@@ -735,7 +735,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
           left_join(
             stoi_df[, c('Season', 'Player_ID', 'Team_ID', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
                         'ppRelCF_Pct', 'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60')],
-            by = c('Season', 'Player_ID', 'Team')
+            by = c('Season', 'Player_ID', 'Team_ID')
           )
 
       } else {
@@ -748,7 +748,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
           sms_df[, c('Season', 'Player_ID', 'Team_ID', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm', 'PIM_perGm',
                      'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'xGF', 'xGA',
                      'OPS', 'DPS', 'soAtt', 'soMade', 'soMiss', 'soPct')],
-          by = c('Season', 'Player_ID', 'Team')
+          by = c('Season', 'Player_ID', 'Team_ID')
         )
 
     # Add Team ID from Reference List
@@ -1266,7 +1266,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
             saps_df[, c('Season', 'Player_ID', 'Team_ID', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
                         'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60',
                         'esTOI_per60', 'TK', 'GV', 'xPlusMinus','TSA','SAThruToNet_Pct')],
-            by = c('Season', 'Player_ID', 'Team')
+            by = c('Season', 'Player_ID', 'Team_ID')
           ) %>%
           relocate(
             Pos2, .after = Pos1
@@ -1283,7 +1283,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
           left_join(
             sptoi_df[, c('Season', 'Player_ID', 'Team_ID', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
                          'ppRelCF_Pct', 'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60')],
-            by = c('Season', 'Player_ID', 'Team')
+            by = c('Season', 'Player_ID', 'Team_ID')
           )
 
       } else {

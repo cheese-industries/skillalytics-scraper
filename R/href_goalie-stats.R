@@ -335,7 +335,7 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
         goalie_reg_stats <- goalie_reg_stats %>%
           left_join(
             gso_df[, c('Season', 'Player_ID', 'Team_ID', 'soAtt', 'soMade', 'soMiss', 'soPct')],
-            by = c('Season', 'Player_ID', 'Team')
+            by = c('Season', 'Player_ID', 'Team_ID')
           )
 
       } else{
