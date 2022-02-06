@@ -30,6 +30,8 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     sbps_yrs <- scrape_setup$sbps_yrs
     saps_yrs <- scrape_setup$saps_yrs
     sptoi_yrs <- scrape_setup$sptoi_yrs
+    # Team Ref
+    tm_ref <- scrape_setup$tm_ref
 
     # Game Type
     gm_type_reg <- "REG"
@@ -179,7 +181,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       }
 
       #Set colnames for table
-      colnames(sbs_df)[1:32] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'Pos1',
+      colnames(sbs_df)[1:32] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID', 'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'Pos1',
                                   'GP', 'G', 'A', 'PTS', 'PlusMinus', 'PIM', 'PS', 'esG', 'ppG', 'shG',	'GWG', 'esA', 'ppA',
                                   'shA', 'S', 'S_Pct', 'TOI', 'Avg_TOI', 'BLK', 'HIT', 'FOW', 'FOL',	'FO_Pct', 'Player_URL')
 
@@ -319,7 +321,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         }
 
         #Set colnames for table
-        colnames(sas_df)[1:28] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos', 'GP', 'esCF', 'esCA', 'esCF_Pct',
+        colnames(sas_df)[1:28] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID', 'Pos', 'GP', 'esCF', 'esCA', 'esCF_Pct',
                                     'esRelCF_Pct', 'esFF', 'esFA', 'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO',
                                     'oZS_Pct', 'dZS_Pct', 'TOI_per60', 'esTOI_per60', 'TK', 'GV', 'xPlusMinus','TSA',
                                     'SAThruToNet_Pct', 'Player_URL')
@@ -469,7 +471,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         }
 
         #Set colnames for table
-        colnames(stoi_df)[1:20] <- c('Season', 'Rk', 'Player_Name', 'Team', 'Pos', 'Avg_ShiftLength_perGm', 'GP', 'esTOI_perGm',
+        colnames(stoi_df)[1:20] <- c('Season', 'Rk', 'Player_Name', 'Team_ID', 'Pos', 'Avg_ShiftLength_perGm', 'GP', 'esTOI_perGm',
                                      'esRelCF_Pct', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm', 'ppRelCF_Pct', 'ppGF_per60',
                                      'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60', 'Player_URL')
 
@@ -661,7 +663,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       }
 
       #Set colnames for table
-      colnames(sms_df)[1:34] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos', 'GP', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm',
+      colnames(sms_df)[1:34] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID', 'Pos', 'GP', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm',
                                   'PIM_perGm', 'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'PlusMinus',
                                   'xGF', 'xGA', 'xPlusMinus', 'OPS', 'DPS', 'PS', 'soAtt', 'soMade', 'soMiss', 'soPct', 'Player_URL')
 
@@ -713,7 +715,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         #Add advanced table to basic stats
         skater_reg_stats <- skater_reg_stats %>%
           left_join(
-            sas_df[, c('Season', 'Player_ID', 'Team', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
+            sas_df[, c('Season', 'Player_ID', 'Team_ID', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
                        'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60',
                        'esTOI_per60', 'TK', 'GV', 'xPlusMinus','TSA','SAThruToNet_Pct')],
             by = c('Season', 'Player_ID', 'Team')
@@ -731,7 +733,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         #Add TOI table
         skater_reg_stats <- skater_reg_stats %>%
           left_join(
-            stoi_df[, c('Season', 'Player_ID', 'Team', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
+            stoi_df[, c('Season', 'Player_ID', 'Team_ID', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
                         'ppRelCF_Pct', 'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60')],
             by = c('Season', 'Player_ID', 'Team')
           )
@@ -743,11 +745,22 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       #Add Misc table
       skater_reg_stats <- skater_reg_stats %>%
         left_join(
-          sms_df[, c('Season', 'Player_ID', 'Team', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm', 'PIM_perGm',
+          sms_df[, c('Season', 'Player_ID', 'Team_ID', 'GC', 'G_perGm', 'A_perGm', 'PTS_perGm', 'GC_perGm', 'PIM_perGm',
                      'S_perGm', 'adjG', 'adjA', 'adjPTS', 'adjGC', 'oiTGF', 'oiPPGF', 'oiTGA', 'oiPKGA', 'xGF', 'xGA',
                      'OPS', 'DPS', 'soAtt', 'soMade', 'soMiss', 'soPct')],
           by = c('Season', 'Player_ID', 'Team')
         )
+
+    # Add Team ID from Reference List
+    skater_reg_stats <- skater_reg_stats %>%
+      left_join(
+        tm_ref,
+        by = 'Team_ID'
+      ) %>%
+      relocate(
+        Team_Name,
+        .after = Team_ID
+      )
 
     # Print Final Update Message
     tot_end_time <- tic()
@@ -904,7 +917,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       }
 
       # Set Column Name for Table
-      colnames(sbps_df)[1:29] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos1',
+      colnames(sbps_df)[1:29] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID', 'Pos1',
                                    'GP', 'G', 'A', 'PTS', 'PlusMinus', 'PIM', 'esG', 'ppG', 'shG',	'GWG', 'esA', 'ppA', 'shA',
                                    'S', 'S_Pct', 'TOI', 'Avg_TOI', 'BLK', 'HIT', 'FOW', 'FOL',	'FO_Pct', 'Player_URL')
 
@@ -1043,7 +1056,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         }
 
         # Set Column Names for Table
-        colnames(saps_df)[1:28] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'Pos', 'GP',
+        colnames(saps_df)[1:28] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID', 'Pos', 'GP',
                                      'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA', 'esFF_Pct', 'esRelFF_Pct',
                                      'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60', 'esTOI_per60', 'TK', 'GV',
                                      'xPlusMinus','TSA','SAThruToNet_Pct', 'Player_URL')
@@ -1194,7 +1207,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         }
 
         # Set Column Names for Table
-        colnames(sptoi_df)[1:20] <- c('Season', 'Rk', 'Player_Name', 'Team', 'Pos', 'Avg_ShiftLength_perGm', 'GP',
+        colnames(sptoi_df)[1:20] <- c('Season', 'Rk', 'Player_Name', 'Team_ID', 'Pos', 'Avg_ShiftLength_perGm', 'GP',
                                       'esTOI_perGm', 'esRelCF_Pct', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm', 'ppRelCF_Pct',
                                       'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60', 'Player_URL')
 
@@ -1250,7 +1263,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         #Add advanced table to basic stats
         skater_post_stats <- skater_post_stats %>%
           left_join(
-            saps_df[, c('Season', 'Player_ID', 'Team', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
+            saps_df[, c('Season', 'Player_ID', 'Team_ID', 'Pos2', 'esCF', 'esCA', 'esCF_Pct', 'esRelCF_Pct', 'esFF', 'esFA',
                         'esFF_Pct', 'esRelFF_Pct', 'oiSH_Pct', 'oiSV_Pct', 'PDO', 'oZS_Pct', 'dZS_Pct', 'TOI_per60',
                         'esTOI_per60', 'TK', 'GV', 'xPlusMinus','TSA','SAThruToNet_Pct')],
             by = c('Season', 'Player_ID', 'Team')
@@ -1268,7 +1281,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         #Add TOI table
         skater_post_stats <- skater_post_stats %>%
           left_join(
-            sptoi_df[, c('Season', 'Player_ID', 'Team', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
+            sptoi_df[, c('Season', 'Player_ID', 'Team_ID', 'Avg_ShiftLength_perGm', 'esTOI_perGm', 'esGF_per60', 'esGA_per60', 'ppTOI_perGm',
                          'ppRelCF_Pct', 'ppGF_per60', 'ppGA_per60', 'shTOI_perGm', 'shRelCF_Pct', 'shGF_per60', 'shGA_per60')],
             by = c('Season', 'Player_ID', 'Team')
           )
@@ -1276,6 +1289,17 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       } else {
         #skip
       }
+
+    # Add Team ID from Reference List
+    skater_post_stats <- skater_post_stats %>%
+      left_join(
+        tm_ref,
+        by = 'Team_ID'
+      ) %>%
+      relocate(
+        Team_Name,
+        .after = Team_ID
+      )
 
     # Print Final Update Message
     tot_end_time <- tic()

@@ -21,9 +21,13 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
 
     # Initialize Years based on Available Data
     scrape_setup <- skillalytics_setup(seas)
+    # Reg
     gbs_yrs <- scrape_setup$gbs_yrs
     gso_yrs <- scrape_setup$gso_yrs
+    # Post
     gbps_yrs <- scrape_setup$gbps_yrs
+    # Team Ref
+    tm_ref <- scrape_setup$tm_ref
 
     # Game Type
     gm_type_reg <- "REG"
@@ -156,7 +160,7 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
       }
 
       #Set colnames for table
-      colnames(gbs_df)[1:30] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team',  'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'GP', 'GS', 'W', 'L',
+      colnames(gbs_df)[1:30] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID',  'Team_Bkdwn_Flag', 'Seas_Sum_Flag', 'GP', 'GS', 'W', 'L',
                                   'TOSL', 'GA', 'SA', 'SV','SV_Pct', 'GAA', 'SO', 'GPS', 'MIN', 'QS', 'QS_Pct', 'RBS', 'GA_Pct_Rel', 'GSAA',
                                   'G', 'A', 'PTS', 'PIM', 'Player_URL')
 
@@ -285,7 +289,7 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
         }
 
         #Set colnames for table
-        colnames(gso_df)[1:8] <- c('Season', 'Player_Name', 'Team', 'soAtt', 'soMade', 'soMiss', 'soPct', 'Player_URL')
+        colnames(gso_df)[1:8] <- c('Season', 'Player_Name', 'Team_ID', 'soAtt', 'soMade', 'soMiss', 'soPct', 'Player_URL')
 
         #Edit table to convert player url into player id, relocate next to player name, and remove rank col
         gso_df <- gso_df %>%
@@ -330,13 +334,24 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
         #Add shoout table to basic stats
         goalie_reg_stats <- goalie_reg_stats %>%
           left_join(
-            gso_df[, c('Season', 'Player_ID', 'Team', 'soAtt', 'soMade', 'soMiss', 'soPct')],
+            gso_df[, c('Season', 'Player_ID', 'Team_ID', 'soAtt', 'soMade', 'soMiss', 'soPct')],
             by = c('Season', 'Player_ID', 'Team')
           )
 
       } else{
         #skip
       }
+
+    # Add Team ID from Reference List
+    goalie_reg_stats <- goalie_reg_stats %>%
+      left_join(
+        tm_ref,
+        by = 'Team_ID'
+      ) %>%
+      relocate(
+        Team_Name,
+        .after = Team_ID
+      )
 
     # Print Final Update Message
     tot_end_time <- tic()
@@ -478,7 +493,7 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
       }
 
       #Set colnames for table
-      colnames(gbps_df)[1:27] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team', 'GP', 'GS', 'W', 'L', 'GA', 'SA', 'SV','SV_Pct', 'GAA',
+      colnames(gbps_df)[1:27] <- c('Season', 'Rk', 'Player_Name', 'Age', 'Team_ID', 'GP', 'GS', 'W', 'L', 'GA', 'SA', 'SV','SV_Pct', 'GAA',
                                    'SO', 'GPS', 'MIN', 'QS', 'QS_Pct', 'RBS', 'GA_Pct_Rel', 'GSAA', 'G', 'A', 'PTS', 'PIM', 'Player_URL')
 
       #Add Pos 'G'
@@ -518,6 +533,17 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
         relocate(
           Hof, .after = Player_Name
         )
+
+    # Add Team ID from Reference List
+    gbps_df <- gbps_df %>%
+      left_join(
+        tm_ref,
+        by = 'Team_ID'
+      ) %>%
+      relocate(
+        Team_Name,
+        .after = Team_ID
+      )
 
     # Print Final Update Message
     tot_end_time <- tic()

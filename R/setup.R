@@ -125,7 +125,8 @@ skillalytics_setup <- function(seas){
                     'Tampa Bay Lightning','Toronto Arenas','Toronto Maple Leafs','Toronto St. Patricks','Vancouver Canucks',
                     'Vegas Golden Knights','Washington Capitals','Winnipeg Jets','Winnipeg Jets',
                     'Total'
-      )
+      ),
+      stringsAsFactors=FALSE
     )
 
     # Add Team Reference to Output List
