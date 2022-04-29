@@ -1,6 +1,6 @@
 Package: skillalytics
 Title: Sports Data Scraper & Wrangler
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person(given = "Brett",
            family = "Gilliland",

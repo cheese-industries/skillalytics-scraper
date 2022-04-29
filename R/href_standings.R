@@ -362,7 +362,7 @@ href_standings <- function(seas){
         tbl_df_temp <- rbind(tbl_df_eas_temp, tbl_df_wes_temp)
 
         #2013 to 2020 changed to 2 divisions in each conference
-      } else if (i > 2013 & i <= 2020) {
+      } else if (i > 2013 & i <= 2020 | i == 2022) {
 
         #Get Eastern table
         tbl_df_eas_temp <- st_url %>%
