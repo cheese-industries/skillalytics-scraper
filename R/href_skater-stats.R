@@ -145,8 +145,8 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
         sbs_df_temp <- sbs_df_temp %>%
           mutate(
             Match = sbs_df_temp$sbs_id_df_temp %in% sbs_tots$sbs_id_df_temp,
-            Team_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', 1, 0),
-            Seas_Sum_Flag = ifelse(Tm == 'TOT', 1, 0)
+            Team_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', TRUE, FALSE),
+            Seas_Sum_Flag = ifelse(Tm == 'TOT', TRUE, FALSE)
           ) %>%
           relocate(
             c(Team_Bkdwn_Flag, Seas_Sum_Flag), .after = Tm
@@ -755,7 +755,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     skater_reg_stats <- skater_reg_stats %>%
       left_join(
         tm_ref,
-        by = 'Team_ID'
+        by = c('Team_ID', 'Season')
       ) %>%
       relocate(
         Team_Name,
@@ -1294,7 +1294,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     skater_post_stats <- skater_post_stats %>%
       left_join(
         tm_ref,
-        by = 'Team_ID'
+        by = c('Team_ID', 'Season')
       ) %>%
       relocate(
         Team_Name,

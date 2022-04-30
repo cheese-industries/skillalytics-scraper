@@ -87,7 +87,7 @@ href_results <- function(seas, reg = TRUE, post = TRUE){
       # Get Away Team ID
       left_join(
         tm_ref,
-        by = c('Away_Team_Name' = 'Team_Name')
+        by = c('Away_Team_Name' = 'Team_Name', 'Season')
       ) %>%
       rename(
         Away_Team_ID = Team_ID
@@ -99,7 +99,7 @@ href_results <- function(seas, reg = TRUE, post = TRUE){
       # Get Home Team ID
       left_join(
         tm_ref,
-        by = c('Home_Team_Name' = 'Team_Name')
+        by = c('Home_Team_Name' = 'Team_Name', 'Season')
       ) %>%
       rename(
         Home_Team_ID = Team_ID
@@ -198,7 +198,7 @@ href_results <- function(seas, reg = TRUE, post = TRUE){
       # Get Away Team ID
       left_join(
         tm_ref,
-        by = c('Away_Team_Name' = 'Team_Name')
+        by = c('Away_Team_Name' = 'Team_Name', 'Season')
       ) %>%
       rename(
         Away_Team_ID = Team_ID
@@ -210,7 +210,7 @@ href_results <- function(seas, reg = TRUE, post = TRUE){
       # Get Home Team ID
       left_join(
         tm_ref,
-        by = c('Home_Team_Name' = 'Team_Name')
+        by = c('Home_Team_Name' = 'Team_Name', 'Season')
       ) %>%
       rename(
         Home_Team_ID = Team_ID

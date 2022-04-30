@@ -124,8 +124,8 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
         gbs_df_temp <- gbs_df_temp %>%
           mutate(
             Match = gbs_df_temp$gbs_id_df_temp %in% gbs_tots$gbs_id_df_temp,
-            Tm_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', 1, 0),
-            Seas_Sum_Flag = ifelse(Tm == 'TOT', 1, 0)
+            Tm_Bkdwn_Flag = ifelse(Match == TRUE & Tm != 'TOT', TRUE, FALSE),
+            Seas_Sum_Flag = ifelse(Tm == 'TOT', TRUE, FALSE)
           ) %>%
           relocate(
             c(Tm_Bkdwn_Flag, Seas_Sum_Flag), .after = Tm
@@ -346,7 +346,7 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
     goalie_reg_stats <- goalie_reg_stats %>%
       left_join(
         tm_ref,
-        by = 'Team_ID'
+        by = c('Team_ID', 'Season')
       ) %>%
       relocate(
         Team_Name,
@@ -538,7 +538,7 @@ href_goalie_stats <- function(seas, reg = TRUE, post = TRUE){
     gbps_df <- gbps_df %>%
       left_join(
         tm_ref,
-        by = 'Team_ID'
+        by = c('Team_ID', 'Season')
       ) %>%
       relocate(
         Team_Name,

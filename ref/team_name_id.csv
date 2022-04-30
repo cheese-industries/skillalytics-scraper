@@ -1,60 +1,61 @@
-TEAM,TM
-Anaheim Ducks,ANA
-Arizona Coyotes,ARI
-Atlanta Flames,ATF
-Atlanta Thrashers,ATL
-Boston Bruins,BOS
-Brooklyn Americans,BRO
-Buffalo Sabres,BUF
-Calgary Flames,CGY
-California Golden Seals,CGS
-Carolina Hurricanes,CAR
-Chicago Black Hawks,CBH
-Chicago Blackhawks,CHI
-Cleveland Barons,CLE
-Colorado Avalanche,COL
-Colorado Rockies,CLR
-Columbus Blue Jackets,CBJ
-Dallas Stars,DAL
-Detroit Cougars,DTC
-Detroit Falcons,DTF
-Detroit Red Wings,DET
-Edmonton Oilers,EDM
-Florida Panthers,FLA
-Hamilton Tigers,HAM
-Hartford Whalers,HAR
-Kansas City Scouts,KCS
-Los Angeles Kings,LAK
-Mighty Ducks of Anaheim,MDA
-Minnesota North Stars,MNS
-Minnesota Wild,MIN
-Montreal Canadiens,MTL
-Montreal Maroons,MTM
-Montreal Wanderers,MTW
-Nashville Predators,NSH
-New Jersey Devils,NJD
-New York Americans,NYA
-New York Islanders,NYI
-New York Rangers,NYR
-Oakland Seals,OAK
-Ottawa Senators,OTS
-Ottawa Senators,OTT
-Philadelphia Flyers,PHI
-Philadelphia Quakers,PHQ
-Phoenix Coyotes,PHX
-Pittsburgh Penguins,PIT
-Pittsburgh Pirates,PTP
-Quebec Athletic Club/Bulldogs,QBC
-Quebec Nordiques,QUE
-San Jose Sharks,SJS
-St. Louis Blues,STL
-St. Louis Eagles,STE
-Tampa Bay Lightning,TBL
-Toronto Arenas,TRA
-Toronto Maple Leafs,TOR
-Toronto St. Patricks,TRS
-Vancouver Canucks,VAN
-Vegas Golden Knights,VEG
-Washington Capitals,WSH
-Winnipeg Jets,WIN
-Winnipeg Jets,WPG
+Team_ID,Team_Name,Min_Season,Max_Season
+ANA,Anaheim Ducks,2007,2022
+ARI,Arizona Coyotes,2015,2022
+ATF,Atlanta Flames,1973,1980
+ATL,Atlanta Thrashers,2000,2011
+BOS,Boston Bruins,1925,2022
+BRO,Brooklyn Americans,1942,1942
+BUF,Buffalo Sabres,1971,2022
+CGY,Calgary Flames,1981,2022
+CGS,California Golden Seals,1971,1976
+CAR,Carolina Hurricanes,1998,2022
+CBH,Chicago Black Hawks,1927,1986
+CHI,Chicago Blackhawks,1987,2022
+CLE,Cleveland Barons,1977,1978
+COL,Colorado Avalanche,1996,2022
+CLR,Colorado Rockies,1977,1982
+CBJ,Columbus Blue Jackets,2001,2022
+DAL,Dallas Stars,1994,2022
+DTC,Detroit Cougars,1927,1930
+DTF,Detroit Falcons,1931,1932
+DET,Detroit Red Wings,1933,2022
+EDM,Edmonton Oilers,1980,2022
+FLA,Florida Panthers,1994,2022
+HAM,Hamilton Tigers,1921,1925
+HAR,Hartford Whalers,1980,1997
+KCS,Kansas City Scouts,1975,1976
+LAK,Los Angeles Kings,1968,2022
+MDA,Mighty Ducks of Anaheim,1994,2006
+MNS,Minnesota North Stars,1968,1993
+MIN,Minnesota Wild,2001,2022
+MTL,Montreal Canadiens,1918,2022
+MTM,Montreal Maroons,1925,1938
+MTW,Montreal Wanderers,1918,1918
+NSH,Nashville Predators,1999,2022
+NJD,New Jersey Devils,1983,2022
+NYA,New York Americans,1926,1941
+NYI,New York Islanders,1973,2022
+NYR,New York Rangers,1927,2022
+OAK,Oakland Seals,1968,1970
+OTS,Ottawa Senators,1918,1934
+OTT,Ottawa Senators,1993,2022
+PHI,Philadelphia Flyers,1968,2022
+PHQ,Philadelphia Quakers,1931,1931
+PHX,Phoenix Coyotes,1997,2014
+PIT,Pittsburgh Penguins,1968,2022
+PTP,Pittsburgh Pirates,1926,1930
+QBC,Quebec Athletic Club/Bulldogs,1920,1920
+QUE,Quebec Nordiques,1980,1995
+SJS,San Jose Sharks,1992,2022
+STL,St. Louis Blues,1968,2022
+STE,St. Louis Eagles,1935,1935
+TBL,Tampa Bay Lightning,1993,2022
+TRA,Toronto Arenas,1918,1919
+TOR,Toronto Maple Leafs,1927,2022
+TRS,Toronto St. Patricks,1920,1926
+VAN,Vancouver Canucks,1971,2022
+VEG,Vegas Golden Knights,2018,2022
+WSH,Washington Capitals,1975,2022
+WIN,Winnipeg Jets,1980,1996
+WPG,Winnipeg Jets,2012,2022
+TOT,Total,1918,2022

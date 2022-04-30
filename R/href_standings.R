@@ -500,7 +500,7 @@ href_standings <- function(seas){
     tbl_df <- tbl_df %>%
       left_join(
         tm_ref,
-        by = 'Team_Name'
+        by = c('Team_Name', 'Season')
       ) %>%
       relocate(
         Team_ID,
