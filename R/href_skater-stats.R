@@ -1,9 +1,9 @@
 
 # DETAILS -----------------------------------------------------------------
 
-#' Scrape NHL Skater Stats from hockey-reference.com
+#' Scrape WHA Skater Stats from hockey-reference.com
 #'
-#' Gathers NHL skater stats by season for the selected seasons and combines results into one dataset.
+#' Gathers WHA skater stats by season for the selected seasons and combines results into one dataset.
 #' @param seas Which seasons would you like to retrieve data for? No default set. Earliest available season is 1918.
 #' @param reg Include regular season data? Defaults to TRUE
 #' @param post Include postseason data? Defaults to TRUE
@@ -45,7 +45,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     # REG SBS -----------------------------------------------------------------
 
       #Create table url variables
-      sbs_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+      sbs_urlstrt <- 'https://www.hockey-reference.com/leagues/WHA_'
       sbs_urlend <- '_skaters.html'
 
       #Create xpath variables to get player id
@@ -73,7 +73,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       if(reg == TRUE & post == TRUE){
         message("Note: regular season and playoff stats will be downloaded separatley before being combined and returned as one output")
       }
-      message("Downloading NHL regular season skater stats for selected seasons, completion status: ")
+      message("Downloading WHA regular season skater stats for selected seasons, completion status: ")
       cat(
         paste0(strrep(bgWhite(" "), 49), " ", 0, "%"),
         " \r"
@@ -225,7 +225,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       if (length(sas_yrs) != 0) {
 
         #Create table url variables
-        sas_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+        sas_urlstrt <- 'https://www.hockey-reference.com/leagues/WHA_'
         sas_urlend <- '_skaters-advanced.html'
 
         #Create xpath variables to get player id
@@ -375,7 +375,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       if (length(stoi_yrs) != 0) {
 
         #Create table url variables
-        stoi_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+        stoi_urlstrt <- 'https://www.hockey-reference.com/leagues/WHA_'
         stoi_urlend <- '_skaters-time-on-ice.html'
 
         #Create xpath variables to get player id
@@ -521,7 +521,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     # REG SMS -----------------------------------------------------------------
 
       #Create table url variables
-      sms_urlstrt <- 'https://www.hockey-reference.com/leagues/NHL_'
+      sms_urlstrt <- 'https://www.hockey-reference.com/leagues/WHA_'
       sms_urlend <- '_skaters-misc.html'
 
       #Create xpath variables to get player id
@@ -798,7 +798,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     # POST SBS ----------------------------------------------------------------
 
       # Create Table URL Variables
-      sbps_urlstrt <- 'https://www.hockey-reference.com/playoffs/NHL_'
+      sbps_urlstrt <- 'https://www.hockey-reference.com/playoffs/WHA_'
       sbps_urlend <- '_skaters.html'
 
       # Create XPath Variables to Get Player ID
@@ -822,7 +822,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
 
       # First Update Message
       tot_strt_time <- tic()
-      message("Downloading NHL skater playoff stats for selected seasons, completion status: ")
+      message("Downloading WHA skater playoff stats for selected seasons, completion status: ")
       cat(
         paste0(strrep(bgWhite(" "), 49), " ", 0, "%"),
         " \r"
@@ -961,7 +961,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       if (length(saps_yrs) != 0) {
 
         # Create Table URL Variables
-        saps_urlstrt <- 'https://www.hockey-reference.com/playoffs/NHL_'
+        saps_urlstrt <- 'https://www.hockey-reference.com/playoffs/WHA_'
         saps_urlend <- '_skaters-advanced.html'
 
         # Create Xpath Variables to Get Player ID
@@ -1110,7 +1110,7 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
       if (length(sptoi_yrs) != 0) {
 
         # Create Create Table URL Variables
-        sptoi_urlstrt <- 'https://www.hockey-reference.com/playoffs/NHL_'
+        sptoi_urlstrt <- 'https://www.hockey-reference.com/playoffs/WHA_'
         sptoi_urlend <- '_skaters-time-on-ice.html'
 
         # Create Xpath Variables to Get Player ID
@@ -1339,5 +1339,3 @@ href_skater_stats <- function(seas, reg = TRUE, post = TRUE){
     return(skater_stats)
 
 } #end function
-
-
